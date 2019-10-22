@@ -1,0 +1,39 @@
+{
+  "scripts": {
+    "test": "echo 'No tests'"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.0",
+    "@babel/core": "^7.2.0",
+    "@babel/plugin-transform-async-to-generator": "^7.2.0",
+    "babel-eslint": "^10.0.3",
+    "babel-plugin-dynamic-import-node": "^2.3.0",
+    "babel-plugin-transform-object-rest-spread": "6.26.0",
+    "babel-preset-es2015-node6": "^0.4.0",
+    "babel-preset-flow": "^6.23.0",
+    "chai": "^4.2.0",
+    "eslint": "^6.4.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "flow-bin": "^0.108.0",
+    "flow-remove-types": "^2.109.0",
+    "google-protobuf": "^3.10.0"
+  },
+  "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
+    "@babel/plugin-proposal-private-methods": "^7.6.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.6.0",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-flow": "^7.0.0",
+    "mocha": "^6.2.1"
+  },
+  "version": "1.0.0",
+  "license": "ISC",
+  "author": "Pleexy LLC.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pleexy/pleexy.git"
+  },
+  "name": "@pleexy/protoc-gen-es6-tests"
+}

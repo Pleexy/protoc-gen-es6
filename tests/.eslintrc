@@ -1,0 +1,39 @@
+{
+  "extends": ["airbnb/base"],
+  "parser": "babel-eslint",
+  "plugins": [
+    "flowtype",
+    "react"
+  ],
+  "rules": {
+    "comma-dangle": [ 2, "always-multiline" ],
+    "arrow-body-style": [ 2, "as-needed" ],
+    "arrow-parens": [ 2, "as-needed" ],
+    "max-len": [2, 160],
+    "no-param-reassign": 0,
+    "no-unused-vars": [1, { "args": "none", "ignoreRestSiblings": true }],
+    "no-use-before-define": 0,
+    "prefer-const": 0,
+    "flowtype/define-flow-type": 1,
+    "flowtype/use-flow-type": 1,
+    "flowtype/valid-syntax": 1,
+    "class-methods-use-this":0,
+    "no-restricted-syntax": "off",
+    "no-underscore-dangle": "off",
+    "no-return-await": "off",
+    "no-await-in-loop": "off",
+    "no-continue": "off",
+    "no-prototype-builtins": "off",
+    "no-plusplus": "off",
+    "no-mixed-operators":"off",
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/*.test.*", "**/*.spec.*"]}],
+    "import/prefer-default-export": "off",
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error"
+  },
+  "settings": {
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": false
+    }
+  }
+}
