@@ -33,6 +33,7 @@ func ES6() *ES6Module {
 		Flow:                   true,
 		ESModules:				false,
 		ConvertString:			true,
+		Grpc:					true,
 	}
 	return &ES6Module{
 		ModuleBase: &pgs.ModuleBase{},

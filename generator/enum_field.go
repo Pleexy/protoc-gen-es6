@@ -18,7 +18,7 @@ func NewEnumFieldGenerator(pgsField pgs.Field, msg *MessageGenerator, o *Options
 	e := &EnumField{
 		Field:newField(pgsField, msg, o),
 	}
-	prefix, typeName, err := GetTypeNameAndPrefix(pgsField, msg)
+	prefix, typeName, err := GetTypeNameAndPrefixForField(pgsField, msg.File)
 	if err != nil {
 		return nil, err
 	}

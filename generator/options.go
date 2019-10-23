@@ -7,4 +7,5 @@ type Options struct {
 	Flow bool
 	ESModules bool
 	ConvertString bool
+	Grpc bool
 }

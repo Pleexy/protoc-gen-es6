@@ -19,7 +19,7 @@ func NewMessageFieldGenerator(pgsField pgs.Field, msg *MessageGenerator, o *Opti
 	if err != nil || f != nil {
 		return f, err
 	}
-	prefix, typeName, err := GetTypeNameAndPrefix(pgsField, msg)
+	prefix, typeName, err := GetTypeNameAndPrefixForField(pgsField, msg.File)
 	if err != nil {
 		return nil, err
 	}

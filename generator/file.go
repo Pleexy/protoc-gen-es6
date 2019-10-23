@@ -17,6 +17,7 @@ type Import struct {
 type FileGenerator struct {
 	PgsFile pgs.File
 	Messages []*MessageGenerator
+	Services []*ServiceGenerator
 	Enums []*EnumGenerator
 	Imports map[string]*Import
 	Opt *Options
@@ -28,6 +29,7 @@ func NewFileGenerator(pgsFile pgs.File, o *Options, resolver FieldResolver) (*Fi
 		Imports: make(map[string]*Import),
 		Messages: make([]*MessageGenerator, len(pgsFile.Messages())),
 		Enums: make([]*EnumGenerator, len(pgsFile.Enums())),
+		Services: make([]*ServiceGenerator,len(pgsFile.Services())),
 		Opt: o,
 	}
 	for i, msg := range pgsFile.Messages() {
@@ -44,6 +46,13 @@ func NewFileGenerator(pgsFile pgs.File, o *Options, resolver FieldResolver) (*Fi
 		}
 		f.Enums[i] = enumGen
 	}
+	for i, svc := range pgsFile.Services() {
+		svcGen, err := NewServiceGenerator(svc, f, o)
+		if err != nil {
+			return nil, err
+		}
+		f.Services[i] = svcGen
+	}
 	return f, nil
 }
 
@@ -54,7 +63,10 @@ func (f *FileGenerator) Generate(pr Printer) {
 	f.generateImports(pr)
 	pr.Print("\n\n")
 	f.generateMessages(pr)
+	pr.Print("\n\n")
 	f.generateEnums(pr)
+	pr.Print("\n\n")
+	f.generateServices(pr)
 }
 
 func (f *FileGenerator) RegisterImport(typeName string, depFile pgs.File) (string, error) {
@@ -80,17 +92,22 @@ func (f *FileGenerator) RegisterImport(typeName string, depFile pgs.File) (strin
 }
 
 func (f *FileGenerator) generateImports(pr Printer) {
-	if f.Opt.ESModules {
-		pr.Print("import * as jspb from 'google-protobuf';\n")
-	} else {
-		pr.Print("const jspb = require('google-protobuf');\n")
+	if len(f.Messages) > 0 {
+		f.generateImport(pr, "jspb", "google-protobuf")
+	}
+	if len(f.Services) > 0 {
+		f.generateImport(pr, "grpc", "grpc")
 	}
 	for _, imp := range f.Imports {
-		if f.Opt.ESModules {
-			pr.Printf("import * as %s from '%s';\n", imp.TypePrefix, imp.ImportPath)
-		} else {
-			pr.Printf("const %s = require('%s');\n", imp.TypePrefix, imp.ImportPath)
-		}
+		f.generateImport(pr, imp.TypePrefix, imp.ImportPath)
+	}
+}
+
+func (f *FileGenerator) generateImport(pr Printer, varName, path string) {
+	if f.Opt.ESModules {
+		pr.Printf("import * as %s from '%s';\n", varName, path)
+	} else {
+		pr.Printf("const %s = require('%s');\n", varName, path)
 	}
 }
 
@@ -103,6 +120,12 @@ func (f *FileGenerator) generateMessages(pr Printer) {
 func (f *FileGenerator) generateEnums(pr Printer) {
 	for _, enum := range f.Enums {
 		enum.Generate(pr)
+	}
+}
+
+func (f *FileGenerator) generateServices(pr Printer) {
+	for _, svc := range f.Services {
+		svc.Generate(pr)
 	}
 }
 

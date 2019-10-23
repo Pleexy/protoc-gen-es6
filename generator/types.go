@@ -79,23 +79,31 @@ func GetMessageName(fqn string, pkg pgs.Package) (string, error) {
 	return "", fmt.Errorf("cannot find type %s in package %s", fqn, packageName)
 }
 
-func GetTypeNameAndPrefix(pgsField pgs.Field, msg *MessageGenerator) (string, string, error) {
-	imports := pgsField.Imports()
-	if len(imports) > 1 {
-		return "", "", fmt.Errorf("too many imports for a field %s", pgsField.Name().String())
+func GetTypeNameAndPrefix(importFile pgs.File, pgsEntity pgs.Entity, typeName string,  f *FileGenerator) (string, string, error) {
+	packageFile := pgsEntity.File()
+	if importFile != nil {
+		packageFile = importFile
 	}
-	packageFile := pgsField.File()
-	if imports != nil {
-		packageFile = imports[0].File()
-	}
-	typeName, err := GetMessageName(pgsField.Descriptor().GetTypeName(), packageFile.Package())
+	typeName, err := GetMessageName(typeName, packageFile.Package())
 	prefix := ""
-	if len(imports) == 1 {
-		prefix, err = msg.File.RegisterImport(pgsField.Descriptor().GetTypeName(), imports[0])
+	if importFile != nil && importFile != pgsEntity.File() {
+		prefix, err = f.RegisterImport(typeName, importFile)
 		if err != nil {
 			return "", "", err
 		}
 		prefix = prefix + "."
 	}
 	return prefix , typeName, nil
+}
+
+func GetTypeNameAndPrefixForField(pgsField pgs.Field, f *FileGenerator) (string, string, error) {
+	imports := pgsField.Imports()
+	if len(imports) > 1 {
+		return "", "", fmt.Errorf("too many imports for an entity %s", pgsField.Name().String())
+	}
+	var importFile pgs.File
+	if imports != nil {
+		importFile = imports[0]
+	}
+	return GetTypeNameAndPrefix(importFile, pgsField, pgsField.Descriptor().GetTypeName(), f)
 }

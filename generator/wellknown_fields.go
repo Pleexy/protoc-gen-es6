@@ -94,7 +94,7 @@ func NewWellKnownField(pgsField pgs.Field, msg *MessageGenerator, o *Options) (F
 
 	m := &wellKnownField{Field:newField(pgsField,msg,o)}
 
-	prefix, typeName, err := GetTypeNameAndPrefix(pgsField, msg)
+	prefix, typeName, err := GetTypeNameAndPrefixForField(pgsField, msg.File)
 	if err != nil {
 		return nil, err
 	}
