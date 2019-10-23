@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	pgs "github.com/lyft/protoc-gen-star"
+	"strconv"
 	"strings"
 )
 
@@ -136,7 +137,8 @@ func (m *wellKnownField) SerializeFunction() string {
 }
 
 func (m *wellKnownField) DeserializeBlock(valName string) string {
-	return fmt.Sprintf(`const tmpWKT = new %s();
-reader.readMessage(tmpWKT, %s.deserializeBinaryFromReader);
-%s = tmpWKT.%s();`, m.WellKnownType, m.WellKnownType, valName, m.ToFunction)
+	varName := "tmpWKT"+ strconv.Itoa(int(m.Number()))
+	return fmt.Sprintf(`const %s = new %s();
+reader.readMessage(%s, %s.deserializeBinaryFromReader);
+%s = %s.%s();`,varName, m.WellKnownType, varName, m.WellKnownType, valName, varName, m.ToFunction)
 }
