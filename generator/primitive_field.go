@@ -64,10 +64,12 @@ func (pf *PrimitiveField) GenerateSetter(p Printer) {
 set {{.setName}}(val{{- if .flow -}} :string):void{{- else -}}){{- end -}}{
   if (val == null || typeof val === 'string' || val instanceof String) {
     this.{{.prop}} = val;
-  } else if (typeof val === 'object') {
-    this.{{.prop}} = JSON.stringify(val);
   } else {
-    this.{{.prop}} = String(val);
+     let res = String(val);
+     if (res === '[object Object]') {
+       res = JSON.stringify(val);
+     }
+     this.{{.prop}} = res;
   }
 }
 `,"setName",pf.GetSetName(), "flow", pf.o.Flow, "prop",  pf.PropertyName())
