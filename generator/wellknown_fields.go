@@ -111,7 +111,7 @@ func NewWellKnownField(pgsField pgs.Field, msg *MessageGenerator, o *Options) (F
 	case "Struct":
 		m.es6Type = "{ [string]: any }"
 		m.typeValidationFunc = func(val string) string { return "" }
-		m.checkEmptyFunc = func(val string) string { return fmt.Sprintf("Object.entries(%s).length === 0 && %s.constructor === Object", val, val) }
+		m.checkEmptyFunc = func(val string) string { return fmt.Sprintf("%s && %s.constructor === Object && Object.entries(%s).length > 0", val, val, val) }
 		m.FromFunction = "fromJavaScript"
 		m.ToFunction = "toJavaScript"
 	default:
