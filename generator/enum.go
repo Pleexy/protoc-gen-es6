@@ -24,10 +24,12 @@ func (en *EnumGenerator) Generate(p Printer) {
 
 	p.PrintTpl("enum",`
 /** {{.name }} */
-{{ if not .embed -}}export const{{- end -}}{{.name}} = Object.freeze({
+{{ if not .embed -}}const {{ end -}}{{.name}} = Object.freeze({
 {{- range .values }}
   {{.Descriptor.GetName}}: {{.Value}},
 {{- end }}
-})
+}){{- if not .embed }};
+module.exports.{{.name}}={{.name}};
+{{ end -}}
 `, "embed",strings.Contains(en.Name, "."),"name", en.Name , "values", en.PgsEnum.Values())
 }
