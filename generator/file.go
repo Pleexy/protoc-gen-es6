@@ -4,6 +4,7 @@ import (
 	pgs "github.com/lyft/protoc-gen-star"
 	"github.com/pkg/errors"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -149,6 +150,8 @@ func (f *FileGenerator) calculateDepPath(dep pgs.File) (string, error) {
 	}
 }
 
+var invalidCharachters = regexp.MustCompile(`[\.\-/\\]`)
+
 func (f *FileGenerator) depToPrefix(dep pgs.File) string {
-	return strings.ReplaceAll(dep.InputPath().SetExt("").String(),"/", "_")
+	return invalidCharachters.ReplaceAllString(dep.InputPath().SetExt("").String(), "_")
 }

@@ -114,6 +114,13 @@ func NewWellKnownField(pgsField pgs.Field, msg *MessageGenerator, o *Options) (F
 		m.checkEmptyFunc = func(val string) string { return fmt.Sprintf("%s && %s.constructor === Object && Object.entries(%s).length > 0", val, val, val) }
 		m.FromFunction = "fromJavaScript"
 		m.ToFunction = "toJavaScript"
+	case "Value":
+		m.es6Type = "any"
+		m.typeValidationFunc = func(val string) string { return "" }
+		m.checkEmptyFunc = func(val string) string { return val }
+		m.FromFunction = "fromJavaScript"
+		m.ToFunction = "toJavaScript"
+
 	default:
 		return nil, nil // process as usual message field
 	}
