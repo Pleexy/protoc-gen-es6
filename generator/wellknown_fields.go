@@ -66,8 +66,8 @@ func (t *timestampField) DeserializeFunction() string {
 type wellKnownField struct {
 	Field
 	WellKnownType string
-	FromFunction string
-	ToFunction string
+	FromFunction func(string) string
+	ToFunction func() string
 }
 /*
 func NewTimeStampField(pgsField pgs.Field, msg *MessageGenerator, o *Options) (FieldGenerator, error) {
@@ -106,21 +106,22 @@ func NewWellKnownField(pgsField pgs.Field, msg *MessageGenerator, o *Options) (F
 		m.typeValidationFunc = func(name string) string { return fmt.Sprintf("%s == null || %s  instanceof Date", name, name)}
 		m.defaultValue = ""
 		m.checkEmptyFunc = func(name string) string { return name }
-		m.FromFunction = "fromDate"
-		m.ToFunction = "toDate"
+		m.FromFunction = func (n string) string { return fmt.Sprintf("fromDate(%s)", n) }
+		m.ToFunction = func () string { return "toDate()"}
 	case "Struct":
 		m.es6Type = "{ [string]: any }"
 		m.typeValidationFunc = func(val string) string { return "" }
 		m.checkEmptyFunc = func(val string) string { return fmt.Sprintf("%s && %s.constructor === Object && Object.entries(%s).length > 0", val, val, val) }
-		m.FromFunction = "fromJavaScript"
-		m.ToFunction = "toJavaScript"
+		m.FromFunction = func (n string) string { return fmt.Sprintf("fromJavaScript(valueDeleteUndefined(%s)", n) }
+		m.ToFunction = func () string { return "toJavaScript()"}
+		msg.File.AddHelper("ValueDeleteUndefined", helperValueDeleteUndefined(o))
 	case "Value":
 		m.es6Type = "any"
 		m.typeValidationFunc = func(val string) string { return "" }
 		m.checkEmptyFunc = func(val string) string { return val }
-		m.FromFunction = "fromJavaScript"
-		m.ToFunction = "toJavaScript"
-
+		m.FromFunction = func (n string) string { return fmt.Sprintf("fromJavaScript(valueDeleteUndefined(%s))", n) }
+		m.ToFunction = func () string { return "toJavaScript()"}
+		msg.File.AddHelper("ValueDeleteUndefined", helperValueDeleteUndefined(o))
 	default:
 		return nil, nil // process as usual message field
 	}
@@ -139,13 +140,40 @@ func (m *wellKnownField) GenerateDeserializeBlock(p Printer, val string) {
 }
 
 func (m *wellKnownField) SerializeFunction() string {
-	return fmt.Sprintf("(val, wr) => %s.serializeBinaryToWriter(%s.%s(val), wr)",
-		m.WellKnownType, m.WellKnownType,m.FromFunction)
+	return fmt.Sprintf("(val, wr) => %s.serializeBinaryToWriter(%s.%s, wr)",
+		m.WellKnownType, m.WellKnownType,m.FromFunction("val"))
 }
 
 func (m *wellKnownField) DeserializeBlock(valName string) string {
 	varName := "tmpWKT"+ strconv.Itoa(int(m.Number()))
 	return fmt.Sprintf(`const %s = new %s();
 reader.readMessage(%s, %s.deserializeBinaryFromReader);
-%s = %s.%s();`,varName, m.WellKnownType, varName, m.WellKnownType, valName, varName, m.ToFunction)
+%s = %s.%s;`,varName, m.WellKnownType, varName, m.WellKnownType, valName, varName, m.ToFunction())
+}
+
+func helperValueDeleteUndefined(o *Options) string {
+	header := "function valueDeleteUndefined(obj) {"
+	if o.Flow {
+		header = "function valueDeleteUndefined(obj: any):any {"
+	}
+	body := `
+  if (obj === undefined || obj === null) { return null;}
+  if (typeof obj !== 'object') { return obj; }
+  if (Array.isArray(obj)) {
+    let res = new Array(obj.length);
+    for (let i = 0; i < obj.length; i++) {
+      res[i] = valueDeleteUndefined(obj[i]);
+    }
+    return res;
+  }
+  let res = {};
+  for (const key in obj) {
+    if (obj[key] !== undefined) {
+      res[key] = valueDeleteUndefined(obj[key]);
+    }
+  }
+  return res;
+}
+`
+	return header + body
 }

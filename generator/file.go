@@ -2,12 +2,12 @@ package generator
 
 import (
 	es6proto "github.com/Pleexy/protoc-gen-es6/proto"
+	"github.com/iancoleman/strcase"
 	pgs "github.com/lyft/protoc-gen-star"
 	"github.com/pkg/errors"
 	"path/filepath"
 	"regexp"
 	"strings"
-"github.com/iancoleman/strcase"
 )
 
 type Import struct {
@@ -30,6 +30,7 @@ type FileGenerator struct {
 	Opt *Options
 	Extensions *FileExtensions
 	Path pgs.FilePath
+	Helpers map[string]string
 }
 
 func NewFileGenerator(pgsFile pgs.File, o *Options, resolver FieldResolver, path pgs.FilePath) (*FileGenerator, error) {
@@ -41,6 +42,7 @@ func NewFileGenerator(pgsFile pgs.File, o *Options, resolver FieldResolver, path
 		Services: make([]*ServiceGenerator,len(pgsFile.Services())),
 		Opt: o,
 		Path: path,
+		Helpers: make(map[string]string),
 	}
 	for i, msg := range pgsFile.Messages() {
 		msgGen, err := NewMessageGenerator(msg, f, o, resolver)
@@ -80,6 +82,7 @@ func (f *FileGenerator) Generate(pr Printer) {
 	f.generateMessages(pr)
 	f.generateEnums(pr)
 	f.generateServices(pr)
+	f.generateHelpers(pr)
 	f.generateExtender(pr)
 }
 
@@ -103,6 +106,10 @@ func (f *FileGenerator) RegisterImport(typeName string, depFile pgs.File) (strin
 		f.Imports[depPath].Types[typeName] = struct{}{}
 	}
 	return f.Imports[depPath].TypePrefix, nil
+}
+
+func (f* FileGenerator) AddHelper(name string, code string) {
+	f.Helpers[name] = code
 }
 
 func (f *FileGenerator) generateImports(pr Printer) {
@@ -161,6 +168,16 @@ func (f *FileGenerator) generateExtender(pr Printer) {
 	if f.Extensions.ExtensionFile != nil && *f.Extensions.ExtensionFile != "" {
 		pr.Print("\n\n")
 		pr.Printf("%s.extend(module.exports);\n",f.depToPrefix(f.Path)+"Extension")
+	}
+}
+
+func (f *FileGenerator) generateHelpers(pr Printer) {
+	if len(f.Helpers) > 0 {
+		pr.Print("\n")
+		for _, helper := range f.Helpers {
+			pr.Print("\n")
+			pr.Print(helper)
+		}
 	}
 }
 
