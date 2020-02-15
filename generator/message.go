@@ -85,9 +85,11 @@ func (m *MessageGenerator) GenerateFromObject(pr Printer) {
 		pr.Print("static fromObject (obj){\n")
 	}
 	pr.Printf( "  const newObj = new %s();\n", m.ClassName())
+	pr.Print( "  if (obj) {\n")
 	for _, fieldGen := range m.Fields {
-		pr.Printf("  newObj.%s = %s;\n", fieldGen.GetSetName(), fieldGen.FromObjectExp("obj." + fieldGen.GetSetName()))
+		pr.Printf("    newObj.%s = %s;\n", fieldGen.GetSetName(), fieldGen.FromObjectExp("obj." + fieldGen.GetSetName()))
 	}
+	pr.Print( "  }\n")
 	pr.Print("  return newObj;\n}\n")
 }
 

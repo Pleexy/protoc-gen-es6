@@ -1,6 +1,7 @@
 package generator
 
 import (
+	es6proto "github.com/Pleexy/protoc-gen-es6/proto"
 	pgs "github.com/lyft/protoc-gen-star"
 	"github.com/pkg/errors"
 	"path/filepath"
@@ -15,6 +16,10 @@ type Import struct {
 	Types map[string]struct{}
 }
 
+type FileExtensions struct {
+	ExtensionFile *string
+}
+
 type FileGenerator struct {
 	PgsFile pgs.File
 	Messages []*MessageGenerator
@@ -22,9 +27,11 @@ type FileGenerator struct {
 	Enums []*EnumGenerator
 	Imports map[string]*Import
 	Opt *Options
+	Extensions *FileExtensions
+	Path pgs.FilePath
 }
 
-func NewFileGenerator(pgsFile pgs.File, o *Options, resolver FieldResolver) (*FileGenerator, error) {
+func NewFileGenerator(pgsFile pgs.File, o *Options, resolver FieldResolver, path pgs.FilePath) (*FileGenerator, error) {
 	f := &FileGenerator{
 		PgsFile:pgsFile,
 		Imports: make(map[string]*Import),
@@ -32,6 +39,7 @@ func NewFileGenerator(pgsFile pgs.File, o *Options, resolver FieldResolver) (*Fi
 		Enums: make([]*EnumGenerator, len(pgsFile.Enums())),
 		Services: make([]*ServiceGenerator,len(pgsFile.Services())),
 		Opt: o,
+		Path: path,
 	}
 	for i, msg := range pgsFile.Messages() {
 		msgGen, err := NewMessageGenerator(msg, f, o, resolver)
@@ -54,6 +62,11 @@ func NewFileGenerator(pgsFile pgs.File, o *Options, resolver FieldResolver) (*Fi
 		}
 		f.Services[i] = svcGen
 	}
+	exts, err := extractExtensions(pgsFile)
+	if err != nil {
+		return nil, err
+	}
+	f.Extensions = exts
 	return f, nil
 }
 
@@ -64,10 +77,9 @@ func (f *FileGenerator) Generate(pr Printer) {
 	f.generateImports(pr)
 	pr.Print("\n\n")
 	f.generateMessages(pr)
-	pr.Print("\n\n")
 	f.generateEnums(pr)
-	pr.Print("\n\n")
 	f.generateServices(pr)
+	f.generateExtender(pr)
 }
 
 func (f *FileGenerator) RegisterImport(typeName string, depFile pgs.File) (string, error) {
@@ -80,7 +92,7 @@ func (f *FileGenerator) RegisterImport(typeName string, depFile pgs.File) (strin
 		imp := Import{
 			FilePath: depPath  ,
 			ImportPath: importPath,
-			TypePrefix: f.depToPrefix(depFile),
+			TypePrefix: f.depToPrefix(depFile.InputPath()),
 			Types: make(map[string]struct{}),
 		}
 		f.Imports[depPath] = &imp
@@ -102,6 +114,7 @@ func (f *FileGenerator) generateImports(pr Printer) {
 	for _, imp := range f.Imports {
 		f.generateImport(pr, imp.TypePrefix, imp.ImportPath)
 	}
+	f.generateExtenderImport(pr)
 }
 
 func (f *FileGenerator) generateImport(pr Printer, varName, path string) {
@@ -119,14 +132,34 @@ func (f *FileGenerator) generateMessages(pr Printer) {
 }
 
 func (f *FileGenerator) generateEnums(pr Printer) {
-	for _, enum := range f.Enums {
-		enum.Generate(pr)
+	if len(f.Enums) > 0 {
+		pr.Print("\n\n")
+		for _, enum := range f.Enums {
+			enum.Generate(pr)
+		}
 	}
 }
 
 func (f *FileGenerator) generateServices(pr Printer) {
-	for _, svc := range f.Services {
-		svc.Generate(pr)
+	if len(f.Services) > 0 {
+		pr.Print("\n\n")
+		for _, svc := range f.Services {
+			svc.Generate(pr)
+		}
+	}
+}
+
+func (f *FileGenerator) generateExtenderImport(pr Printer) {
+	if f.Extensions.ExtensionFile != nil && *f.Extensions.ExtensionFile != "" {
+		varName := f.depToPrefix(f.Path)+"_extension"
+		f.generateImport(pr, varName, *f.Extensions.ExtensionFile)
+	}
+}
+
+func (f *FileGenerator) generateExtender(pr Printer) {
+	if f.Extensions.ExtensionFile != nil && *f.Extensions.ExtensionFile != "" {
+		pr.Print("\n\n")
+		pr.Printf("%s.extend(module.exports);\n",f.depToPrefix(f.Path)+"_extension")
 	}
 }
 
@@ -152,6 +185,19 @@ func (f *FileGenerator) calculateDepPath(dep pgs.File) (string, error) {
 
 var invalidCharachters = regexp.MustCompile(`[\.\-/\\]`)
 
-func (f *FileGenerator) depToPrefix(dep pgs.File) string {
-	return invalidCharachters.ReplaceAllString(dep.InputPath().SetExt("").String(), "_")
+func (f *FileGenerator) depToPrefix(depPath pgs.FilePath) string {
+	return invalidCharachters.ReplaceAllString(depPath.SetExt("").String(), "_")
+}
+
+func extractExtensions(pgsFile pgs.File) (*FileExtensions, error) {
+	extensions := &FileExtensions{}
+	var extensionFile string
+	ok, err :=  pgsFile.Extension(es6proto.E_ExtensionFile, &extensionFile)
+	if err != nil {
+		return nil, err
+	}
+	if ok {
+		extensions.ExtensionFile = &extensionFile
+	}
+	return extensions, nil
 }

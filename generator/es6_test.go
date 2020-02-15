@@ -1,4 +1,4 @@
-package generator
+package generator_test
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"github.com/Pleexy/protoc-gen-es6/generator"
 )
 
 
@@ -23,7 +24,7 @@ func TestRS6(t *testing.T) {
 		pgs.ProtocInput(req),  // use the pre-generated request
 		pgs.ProtocOutput(res), // capture CodeGeneratorResponse
 		pgs.FileSystem(fs),    // capture any custom files written directly to disk
-	).RegisterModule(ES6()).Render()
+	).RegisterModule(generator.ES6()).Render()
 
 	// info, err := fs.Stat("protobuf/core/item.json.go")
 	// log.Print(info.Name())

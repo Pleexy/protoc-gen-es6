@@ -7,4 +7,5 @@ require (
 	github.com/lyft/protoc-gen-star v0.4.11
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/afero v1.2.2
+	github.com/stretchr/testify v1.4.0 // indirect
 )

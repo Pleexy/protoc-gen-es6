@@ -44,11 +44,11 @@ func ES6() *ES6Module {
 
 func (p *ES6Module) InitContext(c pgs.BuildContext) {
 	p.ModuleBase.InitContext(c)
-	//p.ctx = pgsgo.InitContext(c.Parameters())
+	//p.ctx = pgsgo.InitContext(c.Parameters()) //todo: parse parameters
 }
 
 // Name satisfies the generator.Plugin interface.
-func (p *ES6Module) Name() string { return "jsonify" }
+func (p *ES6Module) Name() string { return "es6" }
 
 func (p *ES6Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Package) []pgs.Artifact {
 
@@ -58,20 +58,19 @@ func (p *ES6Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Pac
 	return p.Artifacts()
 }
 
-
 func (p *ES6Module) generate(f pgs.File) {
 	ext := ".pb.es6"
 	if p.o.ESModules {
 		ext = ".pb.mjs"
 	}
-	name :=f.InputPath().SetExt(ext).String()
+	name :=f.InputPath().SetExt(ext)
 	//name := p.ctx.OutputPath(f).SetExt(".es6")
 	buf := &bytes.Buffer{}
 	pr := NewPrinter(buf, 2)
-	fg, err := NewFileGenerator(f, p.o, p.FieldResolver)
+	fg, err := NewFileGenerator(f, p.o, p.FieldResolver, name)
 	p.CheckErr(err)
 	fg.Generate(pr)
-	p.AddGeneratorFile(name, buf.String())
+	p.AddGeneratorFile(name.String(), buf.String())
 
 }
 

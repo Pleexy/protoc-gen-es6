@@ -1,0 +1,10 @@
+syntax = "proto2";
+package genes6proto;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/Pleexy/protoc-gen-es6/proto";
+
+extend google.protobuf.FileOptions {
+    optional string extension_file = 67001;
+}
