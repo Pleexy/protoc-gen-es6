@@ -46,8 +46,8 @@ func (m *MessageField) ToObjectExp(src string) string {
 }
 
 func (m *MessageField) GenerateSerializeBlock(p Printer, val string) {
-	p.Printf(`if (%s){
-  writer.writeMessage(%d, %s, %s.serializeBinaryToWriter)
+	p.Printf(`if (%s) {
+  writer.writeMessage(%d, %s, %s.serializeBinaryToWriter);
 }
 `, m.checkEmptyFunc(val), m.Number(), val, m.es6Type)
 }

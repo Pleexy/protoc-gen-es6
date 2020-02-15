@@ -60,7 +60,9 @@ func (m *MessageGenerator) Generate(pr Printer )  {
 	m.GenerateHeader(pr)
 	m.GenerateProperties(pr.Indent())
 	m.GenerateFromObject(pr.Indent())
+	pr.Print("\n")
 	m.GenerateToObject(pr.Indent())
+	pr.Print("\n")
 	m.GenerateDeserialize(pr.Indent())
 	m.GenerateSerialize(pr.Indent())
 	m.GenerateFooter(pr)
@@ -80,7 +82,7 @@ func (m *MessageGenerator) ClassName() string {
 
 func (m *MessageGenerator) GenerateFromObject(pr Printer) {
 	if m.Opt.Flow {
-		pr.Printf("static fromObject (obj:%s$Object):%s{\n", m.ClassName(), m.ClassName())
+		pr.Printf("static fromObject(obj:%s$Object):%s {\n", m.ClassName(), m.ClassName())
 	} else {
 		pr.Print("static fromObject (obj){\n")
 	}
@@ -132,10 +134,13 @@ func (m *MessageGenerator) GenerateFooter(pr Printer)  {
 func (m *MessageGenerator) GenerateProperties(pr Printer)  {
 	for _, fieldGen := range m.Fields {
 		fieldGen.GenerateProperty(pr)
+		pr.Print("\n")
 	}
 	for _, fieldGen := range m.Fields {
 		fieldGen.GenerateGetter(pr)
+		pr.Print("\n")
 		fieldGen.GenerateSetter(pr)
+		pr.Print("\n")
 	}
 }
 

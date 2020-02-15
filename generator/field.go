@@ -118,16 +118,16 @@ func (f *Field) GenerateProperty(p Printer) {
 		defaultValue = " = " + f.DefaultValue()
 	}
 	if f.o.Flow {
-		p.Printf("%s: %s%s;  // %s %s = %d;\n", f.PropertyName(), f.es6Type, defaultValue, f.protoType, f.ProtoName(), f.Number())
+		p.Printf("%s: %s%s; // %s %s = %d;\n", f.PropertyName(), f.es6Type, defaultValue, f.protoType, f.ProtoName(), f.Number())
 	} else {
-		p.Printf("%s%s;  // %s %s = %d;\n", f.PropertyName(), defaultValue, f.protoType, f.ProtoName(), f.Number())
+		p.Printf("%s%s; // %s %s = %d;\n", f.PropertyName(), defaultValue, f.protoType, f.ProtoName(), f.Number())
 	}
 }
 func (f *Field) GenerateObjectField(p Printer) {
 	if f.o.Flow {
-		p.Printf("%s: %s,  // %s %s = %d;\n", f.GetSetName(), f.es6Type, f.protoType, f.ProtoName(), f.Number())
+		p.Printf("%s: %s, // %s %s = %d;\n", f.GetSetName(), f.es6Type, f.protoType, f.ProtoName(), f.Number())
 	} else {
-		p.Printf("%s,  // %s %s = %d;\n", f.GetSetName(),  f.protoType, f.ProtoName(), f.Number())
+		p.Printf("%s, // %s %s = %d;\n", f.GetSetName(),  f.protoType, f.ProtoName(), f.Number())
 	}
 }
 
@@ -154,7 +154,7 @@ func (f *Field) GenerateGetter(p Printer) {
 	} else {
 		p.Printf("get %s(){\n", f.GetSetName())
 	}
-	p.Printf("  return this.%s;\n}\n\n", f.PropertyName())
+	p.Printf("  return this.%s;\n}\n", f.PropertyName())
 }
 
 func (f *Field) GenerateSetter(p Printer) {
@@ -174,7 +174,7 @@ func (f *Field) GenerateSetter(p Printer) {
 }
 `, typeValidation, f.PropertyName(), f.es6Type, f.PropertyName())
 	} else {
-		p.Printf("  this.%s = val;\n}\n\n\n", f.PropertyName())
+		p.Printf("  this.%s = val;\n}\n", f.PropertyName())
 	}
 }
 

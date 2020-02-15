@@ -130,7 +130,7 @@ func NewWellKnownField(pgsField pgs.Field, msg *MessageGenerator, o *Options) (F
 
 func (m *wellKnownField) GenerateSerializeBlock(p Printer, val string) {
 	p.Printf(`if (%s) {
-  writer.writeMessage(%d, %s, %s)
+  writer.writeMessage(%d, %s, %s);
 }
 `, m.CheckNotEmptyExp(val), m.Number(), val, m.SerializeFunction())
 }
@@ -139,7 +139,7 @@ func (m *wellKnownField) GenerateDeserializeBlock(p Printer, val string) {
 }
 
 func (m *wellKnownField) SerializeFunction() string {
-	return fmt.Sprintf("(val, writer) => %s.serializeBinaryToWriter(%s.%s(val), writer)",
+	return fmt.Sprintf("(val, wr) => %s.serializeBinaryToWriter(%s.%s(val), wr)",
 		m.WellKnownType, m.WellKnownType,m.FromFunction)
 }
 

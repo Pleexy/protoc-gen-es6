@@ -41,7 +41,7 @@ func (rf *RepeatedField) ToObjectExp(src string) string {
 
 
 func (rf *RepeatedField) GenerateSerializeBlock(p Printer, val string) {
-	p.Printf("if (%s){\n", rf.checkEmptyFunc(val))
+	p.Printf("if (%s) {\n", rf.checkEmptyFunc(val))
 	if rf.Element.IsMessage() {
 		p.Printf("  writer.writeRepeatedMessage(%d, %s, %s);\n", rf.Number(), val, rf.Element.SerializeFunction())
 	} else {
@@ -59,7 +59,7 @@ func (rf *RepeatedField) GenerateDeserializeBlock(p Printer, val string) {
 		p.Printf( "%s = reader.readPacked%s();\n", val, upperFirst(ReadWriteNames[*rf.pgsField.Descriptor().Type]))
 	} else {
 		valName := fmt.Sprintf("rpfgVal%d", rf.Number())
-		p.Printf(`if (! %s){
+		p.Printf(`if (! %s) {
   %s = []
 }
 let %s;

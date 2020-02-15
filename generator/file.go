@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+"github.com/iancoleman/strcase"
 )
 
 type Import struct {
@@ -151,7 +152,7 @@ func (f *FileGenerator) generateServices(pr Printer) {
 
 func (f *FileGenerator) generateExtenderImport(pr Printer) {
 	if f.Extensions.ExtensionFile != nil && *f.Extensions.ExtensionFile != "" {
-		varName := f.depToPrefix(f.Path)+"_extension"
+		varName := f.depToPrefix(f.Path)+"Extension"
 		f.generateImport(pr, varName, *f.Extensions.ExtensionFile)
 	}
 }
@@ -159,7 +160,7 @@ func (f *FileGenerator) generateExtenderImport(pr Printer) {
 func (f *FileGenerator) generateExtender(pr Printer) {
 	if f.Extensions.ExtensionFile != nil && *f.Extensions.ExtensionFile != "" {
 		pr.Print("\n\n")
-		pr.Printf("%s.extend(module.exports);\n",f.depToPrefix(f.Path)+"_extension")
+		pr.Printf("%s.extend(module.exports);\n",f.depToPrefix(f.Path)+"Extension")
 	}
 }
 
@@ -186,7 +187,7 @@ func (f *FileGenerator) calculateDepPath(dep pgs.File) (string, error) {
 var invalidCharachters = regexp.MustCompile(`[\.\-/\\]`)
 
 func (f *FileGenerator) depToPrefix(depPath pgs.FilePath) string {
-	return invalidCharachters.ReplaceAllString(depPath.SetExt("").String(), "_")
+	return strcase.ToLowerCamel(invalidCharachters.ReplaceAllString(depPath.SetExt("").String(), "_"))
 }
 
 func extractExtensions(pgsFile pgs.File) (*FileExtensions, error) {
@@ -201,3 +202,4 @@ func extractExtensions(pgsFile pgs.File) (*FileExtensions, error) {
 	}
 	return extensions, nil
 }
+

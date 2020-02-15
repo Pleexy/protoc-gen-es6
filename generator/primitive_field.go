@@ -36,7 +36,7 @@ func NewPrimitiveFieldWriter(pgsField pgs.Field, msg *MessageGenerator, o *Optio
 		s.defaultValue = ""
 	case descriptor.FieldDescriptorProto_TYPE_STRING:
 		s.es6Type = "string"
-		s.checkEmptyFunc = func(name string) string { return fmt.Sprintf(" %s && %s.length > 0", name, name) }
+		s.checkEmptyFunc = func(name string) string { return fmt.Sprintf("%s && %s.length > 0", name, name) }
 		s.defaultValue = "''"
 		s.typeValidationFunc = func(name string) string { return fmt.Sprintf("%s == null || typeof %s === 'string' || %s instanceof String", name, name, name) }
 	case descriptor.FieldDescriptorProto_TYPE_BOOL:
@@ -65,19 +65,19 @@ set {{.setName}}(val{{- if .flow -}} :string):void{{- else -}}){{- end -}}{
   if (val == null || typeof val === 'string' || val instanceof String) {
     this.{{.prop}} = val;
   } else {
-     let res = String(val);
-     if (res === '[object Object]') {
-       res = JSON.stringify(val);
-     }
-     this.{{.prop}} = res;
+    let res = String(val);
+    if (res === '[object Object]') {
+      res = JSON.stringify(val);
+    }
+    this.{{.prop}} = res;
   }
 }
 `,"setName",pf.GetSetName(), "flow", pf.o.Flow, "prop",  pf.PropertyName())
 }
 
 func (pf *PrimitiveField) GenerateSerializeBlock(p Printer, val string) {
-	p.Printf(`if (%s){
-  writer.%s(%d, %s); 
+	p.Printf(`if (%s) {
+  writer.%s(%d, %s);
 }
 `, pf.CheckNotEmptyExp(val), pf.SerializeFunction() , pf.Number(), val)
 }
