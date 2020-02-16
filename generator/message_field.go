@@ -42,7 +42,7 @@ func (m *MessageField) FromObjectExp(src string) string {
 }
 
 func (m *MessageField) ToObjectExp(src string) string {
-	return fmt.Sprintf("%s.toObject()", src)
+	return fmt.Sprintf("%s && %s.toObject()", src, src)
 }
 
 func (m *MessageField) GenerateSerializeBlock(p Printer, val string) {
