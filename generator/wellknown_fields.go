@@ -112,7 +112,7 @@ func NewWellKnownField(pgsField pgs.Field, msg *MessageGenerator, o *Options) (F
 		m.es6Type = "{ [string]: any }"
 		m.typeValidationFunc = func(val string) string { return "" }
 		m.checkEmptyFunc = func(val string) string { return fmt.Sprintf("%s && %s.constructor === Object && Object.entries(%s).length > 0", val, val, val) }
-		m.FromFunction = func (n string) string { return fmt.Sprintf("fromJavaScript(valueDeleteUndefined(%s)", n) }
+		m.FromFunction = func (n string) string { return fmt.Sprintf("fromJavaScript(valueDeleteUndefined(%s))", n) }
 		m.ToFunction = func () string { return "toJavaScript()"}
 		msg.File.AddHelper("ValueDeleteUndefined", helperValueDeleteUndefined(o))
 	case "Value":
