@@ -32,7 +32,7 @@ func NewRepeatedFieldWriter(pgsField pgs.Field, msg *MessageGenerator, o *Option
 }
 
 func (rf *RepeatedField) FromObjectExp(src string) string {
-	return fmt.Sprintf("%s && %s.map(x => %s)", src, src, rf.Element.FromObjectExp("x"))
+	return fmt.Sprintf("%s && Array.from(%s).map(x => %s)", src, src, rf.Element.FromObjectExp("x"))
 }
 
 func (rf *RepeatedField) ToObjectExp(src string) string {
