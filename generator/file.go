@@ -117,7 +117,7 @@ func (f *FileGenerator) generateImports(pr Printer) {
 		f.generateImport(pr, "jspb", "google-protobuf")
 	}
 	if len(f.Services) > 0 {
-		f.generateImport(pr, "grpc", "grpc")
+		f.generateImport(pr, "grpc", "@grpc/grpc-js")
 	}
 	for _, imp := range f.Imports {
 		f.generateImport(pr, imp.TypePrefix, imp.ImportPath)
