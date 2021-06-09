@@ -187,7 +187,7 @@ static deserializeBinary(bytes) {
   return %s.deserializeBinaryFromReader(msg, reader);
 }
 %s
-  static deserializeBinaryFromReader (msg, reader: BinaryReader) {
+  static deserializeBinaryFromReader (msg, reader) {
 `, dbComment, m.ClassName(), m.ClassName(), dbfrComment)
 	}
 	pr.Print(`  while (reader.nextField()) {
