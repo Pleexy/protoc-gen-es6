@@ -31,7 +31,7 @@ func ES6() *ES6Module {
 		Flow:                   true,
 		ESModules:				false,
 		ConvertString:			true,
-		Grpc:					true,
+		Grpc:					false,
 		ReplaceJSOut: 			false,
 
 	}
@@ -50,6 +50,9 @@ func (p *ES6Module) InitContext(c pgs.BuildContext) {
 	}
 	if _, ok := params["jsout"]; ok {
 		p.o.ReplaceJSOut = true
+	}
+	if _, ok := params["grpc"]; ok {
+		p.o.Grpc = true
 	}
 }
 
