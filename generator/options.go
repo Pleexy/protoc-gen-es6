@@ -8,4 +8,5 @@ type Options struct {
 	ESModules bool
 	ConvertString bool
 	Grpc bool
+	ReplaceJSOut bool
 }

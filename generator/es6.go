@@ -3,7 +3,6 @@ package generator
 import (
 	"bytes"
 	pgs "github.com/lyft/protoc-gen-star"
-	//pgsgo "github.com/lyft/protoc-gen-star/lang/go"
 )
 
 type fieldWriterFactory func(fld pgs.Field) (FieldGenerator, error)
@@ -14,7 +13,6 @@ type fieldWriterFactory func(fld pgs.Field) (FieldGenerator, error)
 // See: https://godoc.org/github.com/golang/protobuf/jsonpb
 type ES6Module struct {
 	*pgs.ModuleBase
-//	ctx pgsgo.Context
 	flow bool
 	FieldResolver
 	o *Options
@@ -34,6 +32,8 @@ func ES6() *ES6Module {
 		ESModules:				false,
 		ConvertString:			true,
 		Grpc:					true,
+		ReplaceJSOut: 			false,
+
 	}
 	return &ES6Module{
 		ModuleBase: &pgs.ModuleBase{},
@@ -44,7 +44,13 @@ func ES6() *ES6Module {
 
 func (p *ES6Module) InitContext(c pgs.BuildContext) {
 	p.ModuleBase.InitContext(c)
-	//p.ctx = pgsgo.InitContext(c.Parameters()) //todo: parse parameters
+	params := c.Parameters()
+	if _, ok := params["noflow"]; ok {
+		p.o.Flow = false
+	}
+	if _, ok := params["jsout"]; ok {
+		p.o.ReplaceJSOut = true
+	}
 }
 
 // Name satisfies the generator.Plugin interface.
@@ -59,19 +65,20 @@ func (p *ES6Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Pac
 }
 
 func (p *ES6Module) generate(f pgs.File) {
-	ext := ".pb.es6"
-	if p.o.ESModules {
-		ext = ".pb.mjs"
+	name := f.InputPath()
+	if p.o.ReplaceJSOut {
+		name = name.SetBase(name.BaseName()+"_pb").SetExt(".js")
+	} else if p.o.ESModules {
+		name = name.SetExt(".pb.mjs")
+	} else {
+		name = name.SetExt(".pb.es6")
 	}
-	name :=f.InputPath().SetExt(ext)
-	//name := p.ctx.OutputPath(f).SetExt(".es6")
 	buf := &bytes.Buffer{}
 	pr := NewPrinter(buf, 2)
 	fg, err := NewFileGenerator(f, p.o, p.FieldResolver, name)
 	p.CheckErr(err)
 	fg.Generate(pr)
 	p.AddGeneratorFile(name.String(), buf.String())
-
 }
 
 
