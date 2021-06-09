@@ -189,11 +189,7 @@ func (f *FileGenerator) calculateDepPath(dep pgs.File) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		ext := ".pb"
-		if f.Opt.ESModules {
-			ext = ".pb.mjs"
-		}
-		depPath := filepath.Join(rel, dep.InputPath().SetExt(ext).Base())
+		depPath := filepath.Join(rel, getOutputPath(dep.InputPath(), f.Opt).Base())
 		if ! strings.Contains(depPath, "/") {
 			depPath = "./"+depPath
 		}

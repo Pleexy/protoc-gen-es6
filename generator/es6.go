@@ -68,14 +68,7 @@ func (p *ES6Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Pac
 }
 
 func (p *ES6Module) generate(f pgs.File) {
-	name := f.InputPath()
-	if p.o.ReplaceJSOut {
-		name = name.SetBase(name.BaseName()+"_pb").SetExt(".js")
-	} else if p.o.ESModules {
-		name = name.SetExt(".pb.mjs")
-	} else {
-		name = name.SetExt(".pb.es6")
-	}
+	name := getOutputPath(f.InputPath(), p.o)
 	buf := &bytes.Buffer{}
 	pr := NewPrinter(buf, 2)
 	fg, err := NewFileGenerator(f, p.o, p.FieldResolver, name)
