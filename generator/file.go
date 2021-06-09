@@ -116,7 +116,7 @@ func (f *FileGenerator) generateImports(pr Printer) {
 	if len(f.Messages) > 0 {
 		f.generateImport(pr, "jspb", "google-protobuf")
 	}
-	if len(f.Services) > 0 {
+	if f.Opt.Grpc && len(f.Services) > 0 {
 		f.generateImport(pr, "grpc", "@grpc/grpc-js")
 	}
 	for _, imp := range f.Imports {
@@ -149,7 +149,7 @@ func (f *FileGenerator) generateEnums(pr Printer) {
 }
 
 func (f *FileGenerator) generateServices(pr Printer) {
-	if len(f.Services) > 0 {
+	if f.Opt.Grpc && len(f.Services) > 0 {
 		pr.Print("\n\n")
 		for _, svc := range f.Services {
 			svc.Generate(pr)
